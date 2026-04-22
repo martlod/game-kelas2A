@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌊 Game Teks Prosedur – Kelas 2</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800;900&display=swap');
+
+:root {
+  --bg1: #006994;
+  --bg2: #0099cc;
+  --bg3: #33bbee;
+  --ocean: #00aadd;
+  --wave: #44ccff;
+  --foam: #aaeeff;
+  --sand: #FFE066;
+  --coral: #FF6B6B;
+  --seaweed: #44DD88;
+  --purple: #CC88FF;
+  --green: #00E676;
+  --red: #FF5252;
+  --gold: #FFD700;
+  --text: #ffffff;
+  --sub: #cceeff;
+  --card: rgba(0,150,220,0.18);
+  --card-b: rgba(100,220,255,0.35);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: linear-gradient(180deg, #0077aa 0%, #0099cc 25%, #00bbee 50%, #33ccff 75%, #55ddff 100%);
+  min-height: 100vh; color: var(--text);
+  overflow-x: hidden; overflow-y: auto;
+}
+
+.sea-bg {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
+  background:
+    radial-gradient(ellipse at 20% 30%, rgba(100,220,255,0.25) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 60%, rgba(150,100,255,0.2) 0%, transparent 40%),
+    radial-gradient(ellipse at 50% 80%, rgba(100,255,180,0.15) 0%, transparent 40%);
+}
+
+.bubble {
+  position: absolute; border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.5), rgba(100,220,255,0.15));
+  border: 1.5px solid rgba(255,255,255,0.4);
+  animation: rise linear infinite;
+}
+@keyframes rise {
+  0%   { transform: translateY(110vh) scale(0) translateX(0); opacity:0; }
+  10%  { opacity:.8; }
+  50%  { transform: translateY(50vh) scale(1) translateX(15px); }
+  90%  { opacity:.4; }
+  100% { transform: translateY(-5vh) scale(1) translateX(-10px); opacity:0; }
+}
+
+.deco { position: fixed; bottom: 0; pointer-events: none; z-index: 0; font-size: clamp(28px,4vw,48px); animation: sway ease-in-out infinite; }
+@keyframes sway { 0%,100%{transform:rotate(-8deg) scaleY(1)} 50%{transform:rotate(8deg) scaleY(1.05)} }
+
+.fish { position: fixed; pointer-events: none; z-index: 0; animation: swim linear infinite; }
+@keyframes swim {
+  0%   { transform: translateX(-120px) scaleX(1); }
+  49%  { transform: translateX(110vw) scaleX(1); }
+  50%  { transform: translateX(110vw) scaleX(-1); }
+  100% { transform: translateX(-120px) scaleX(-1); }
+}
+
+.wave-bot { position: fixed; bottom: 0; left: 0; right: 0; pointer-events: none; z-index: 0; }
+.wsvg { width: 200%; animation: wMove linear infinite; }
+@keyframes wMove { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+.rays { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); pointer-events: none; z-index: 0; width: 100%; }
+.ray {
+  position: absolute; width: 4px; background: linear-gradient(180deg, rgba(255,255,255,.15), transparent);
+  transform-origin: top center; animation: rayMove ease-in-out infinite;
+}
+@keyframes rayMove { 0%,100%{opacity:.3;transform:rotate(var(--r)) scaleY(1)} 50%{opacity:.7;transform:rotate(calc(var(--r) + 5deg)) scaleY(1.05)} }
+
+.container {
+  position: relative; z-index: 1;
+  max-width: 880px; margin: 0 auto;
+  padding: 20px 16px 100px;
+  display: flex; flex-direction: column; align-items: center;
+}
+
+.header { text-align: center; margin-bottom: 20px; animation: dropIn .7s both; }
+@keyframes dropIn {
+  from { transform: translateY(-40px); opacity:0; }
+  to   { transform: translateY(0); opacity:1; }
+}
+.header-fish { font-size: clamp(32px,6vw,52px); letter-spacing: 4px; margin-bottom: 6px; animation: fishDance 2s ease-in-out infinite; }
+@keyframes fishDance { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+.logo {
+  font-family: 'Fredoka One', cursive;
+  font-size: clamp(24px,5.5vw,48px);
+  color: white;
+  text-shadow:
+    0 2px 0 rgba(0,80,140,.5),
+    0 4px 16px rgba(0,100,180,.4),
+    0 0 40px rgba(100,220,255,.3);
+  line-height: 1.1; margin-bottom: 4px;
+}
+.school-name {
+  font-family: 'Fredoka One', cursive;
+  font-size: clamp(13px,2.5vw,20px);
+  color: var(--sand);
+  text-shadow: 0 2px 8px rgba(0,0,0,.3);
+  margin-bottom: 6px; letter-spacing: .02em;
+}
+.logo-sub {
+  font-size: clamp(11px,2vw,14px); color: var(--foam); letter-spacing:.05em;
+  display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap;
+}
+.chip {
+  background: rgba(255,255,255,.2); border: 1px solid rgba(255,255,255,.35);
+  border-radius: 99px; padding: 3px 12px; font-size: 12px; font-weight: 700; color: white;
+}
+
+.screen { display: none; width: 100%; }
+.screen.active { display: flex; flex-direction: column; align-items: center; animation: fadeUp .4s ease both; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+.scorebar {
+  display: flex; gap: 10px; justify-content: center; margin-bottom: 14px; flex-wrap: wrap; width: 100%;
+}
+.sb {
+  background: rgba(255,255,255,.2); border: 2px solid rgba(255,255,255,.35);
+  border-radius: 18px; padding: 8px 18px; text-align: center; min-width: 88px;
+  backdrop-filter: blur(10px); box-shadow: 0 4px 12px rgba(0,0,0,.15);
+}
+.sb .lbl { font-size: 10px; color: rgba(255,255,255,.8); text-transform: uppercase; letter-spacing:.08em; }
+.sb .val { font-family: 'Fredoka One', cursive; font-size: 24px; line-height: 1.1; color: white; }
+.sb.pop { animation: pop .3s ease; }
+@keyframes pop { 0%,100%{transform:scale(1)} 50%{transform:scale(1.18)} }
+
+.prog-wrap { width: 100%; max-width: 480px; margin: 6px 0 12px; }
+.prog-bar { height: 10px; background: rgba(255,255,255,.2); border-radius: 99px; overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,.2); }
+.prog-fill {
+  height: 100%; border-radius: 99px;
+  background: linear-gradient(90deg, var(--sand), var(--coral), var(--purple));
+  transition: width .5s cubic-bezier(.4,2,.6,1);
+  box-shadow: 0 0 12px rgba(255,220,0,.5);
+}
+.prog-info { display: flex; justify-content: space-between; margin-top: 4px; }
+.prog-txt { font-size: 12px; color: rgba(255,255,255,.85); font-weight: 700; }
+
+.wheel-wrap {
+  position: relative; margin: 8px auto;
+  width: min(390px, 88vw); height: min(390px, 88vw);
+}
+.wheel-canvas {
+  border-radius: 50%; display: block;
+  box-shadow: 0 8px 40px rgba(0,0,0,.3), 0 0 0 6px rgba(255,255,255,.15), 0 0 0 12px rgba(255,255,255,.08);
+}
+.wheel-arrow {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  width: 58px; height: 58px; z-index: 10;
+  background: radial-gradient(circle at 35% 35%, #fff 30%, #aaeeff 100%);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 26px; box-shadow: 0 4px 20px rgba(0,0,0,.4), 0 0 0 3px rgba(255,255,255,.5);
+}
+.wheel-ptr {
+  position: absolute; top: -16px; left: 50%; transform: translateX(-50%);
+  width: 0; height: 0;
+  border-left: 15px solid transparent; border-right: 15px solid transparent;
+  border-bottom: 30px solid var(--sand);
+  filter: drop-shadow(0 3px 6px rgba(0,0,0,.4));
+  z-index: 20;
+}
+
+.name-display {
+  margin: 14px 0 8px;
+  background: rgba(255,255,255,.2); border: 2.5px solid rgba(255,255,255,.4);
+  border-radius: 22px; padding: 14px 24px; text-align: center;
+  min-height: 68px; display: flex; align-items: center; justify-content: center;
+  width: 100%; max-width: 460px; backdrop-filter: blur(8px);
+  box-shadow: 0 4px 16px rgba(0,0,0,.15);
+}
+.nd-ready { font-size: 15px; color: rgba(255,255,255,.8); font-style: italic; }
+.nd-name {
+  font-family: 'Fredoka One', cursive; font-size: clamp(22px,5vw,36px);
+  color: var(--sand); text-shadow: 0 2px 12px rgba(0,0,0,.3);
+  animation: namePop .5s cubic-bezier(.36,.07,.19,.97);
+}
+@keyframes namePop { from{transform:scale(0) rotate(-10deg);opacity:0} to{transform:scale(1) rotate(0);opacity:1} }
+.nd-sub { font-size: 13px; color: rgba(255,255,255,.8); margin-top: 4px; font-weight: 700; }
+
+.btn-spin {
+  background: linear-gradient(135deg, #FF6B35, #FF1744);
+  border: none; color: white; font-family: 'Fredoka One', cursive;
+  font-size: 22px; padding: 16px 52px; border-radius: 99px; cursor: pointer;
+  box-shadow: 0 8px 28px rgba(255,50,0,.4); transition: all .2s;
+  margin: 8px 0; border: 3px solid rgba(255,255,255,.3);
+}
+.btn-spin:hover:not(:disabled) { transform: scale(1.06); box-shadow: 0 12px 36px rgba(255,50,0,.5); }
+.btn-spin:disabled { opacity:.6; cursor:not-allowed; }
+
+.btn-soal {
+  background: linear-gradient(135deg, var(--sand), #f39c12);
+  border: none; color: #003355; font-family: 'Fredoka One', cursive;
+  font-size: 20px; padding: 14px 44px; border-radius: 99px; cursor: pointer;
+  box-shadow: 0 8px 24px rgba(255,200,0,.4); transition: all .2s;
+  display: none; margin: 6px 0; border: 3px solid rgba(255,255,255,.3);
+}
+.btn-soal.show { display: inline-block; }
+.btn-soal:hover { transform: scale(1.06); }
+
+.q-wrap { width: 100%; max-width: 760px; }
+.q-card {
+  background: rgba(255,255,255,.18); border: 2.5px solid rgba(255,255,255,.4);
+  border-radius: 28px; padding: 22px 18px; margin-bottom: 12px;
+  box-shadow: 0 8px 40px rgba(0,0,0,.2); backdrop-filter: blur(16px);
+  position: relative; overflow: hidden;
+}
+.q-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:4px;
+  background: linear-gradient(90deg, var(--sand), var(--coral), var(--purple), var(--seaweed), var(--wave));
+}
+.q-badge {
+  display: inline-flex; align-items: center; gap:6px;
+  background: rgba(0,80,140,.5); border: 2px solid rgba(255,255,255,.3);
+  color: white; font-size: 11px; font-weight: 900; padding: 5px 14px;
+  border-radius: 99px; margin-bottom: 4px; text-transform: uppercase; letter-spacing:.08em;
+}
+.name-pill {
+  display: inline-flex; align-items: center; gap:6px;
+  background: rgba(255,220,0,.25); border: 1.5px solid rgba(255,220,0,.5);
+  border-radius: 99px; padding: 5px 14px; font-size: 13px; font-weight: 800;
+  color: var(--sand); margin-bottom: 4px; margin-left: 8px;
+}
+.q-img {
+  border-radius: 18px; padding: 16px 12px; text-align: center; margin: 10px 0 14px;
+  border: 2px solid rgba(255,255,255,.25);
+  background: rgba(255,255,255,.12);
+}
+.q-em {
+  font-size: clamp(60px,12vw,96px); display: block; margin-bottom: 6px;
+  animation: emPop .5s cubic-bezier(.36,.07,.19,.97), emFloat 3s ease-in-out 1s infinite;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,.2));
+}
+@keyframes emPop { from{transform:scale(0) rotate(-20deg);opacity:0} to{transform:scale(1) rotate(0);opacity:1} }
+@keyframes emFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+.q-cap { font-size: 13px; font-weight: 800; color: rgba(255,255,255,.85); }
+
+.q-txt {
+  font-size: clamp(15px,2.8vw,19px); font-weight: 900; line-height: 1.45;
+  text-align: center; margin-bottom: 18px; color: white;
+  text-shadow: 0 1px 4px rgba(0,0,0,.2);
+}
+
+.choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ch {
+  background: rgba(0,60,120,.5); border: 2.5px solid rgba(255,255,255,.3);
+  border-radius: 20px; padding: 14px 10px; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  position: relative; overflow: hidden; transition: all .2s cubic-bezier(.4,2,.6,1);
+  text-align: center; backdrop-filter: blur(8px);
+}
+.ch:hover:not(:disabled) {
+  border-color: var(--sand); background: rgba(0,100,180,.6);
+  transform: translateY(-3px) scale(1.02); box-shadow: 0 8px 20px rgba(0,0,0,.2);
+}
+.ch-lt {
+  position: absolute; top:8px; left:9px; width:22px; height:22px; border-radius:50%;
+  background: rgba(255,255,255,.2); font-size:10px; font-weight:900;
+  display:flex; align-items:center; justify-content:center; color:white;
+}
+.ch-em  { font-size: clamp(30px,7vw,50px); filter: drop-shadow(0 2px 6px rgba(0,0,0,.2)); }
+.ch-lbl {
+  font-size: clamp(12px,2.2vw,15px); font-weight: 800; line-height: 1.3;
+  color: white !important;
+  text-shadow: 0 1px 4px rgba(0,0,0,.4);
+}
+.ch.correct {
+  border-color: #00E676; border-width: 4px;
+  background: rgba(0,180,80,.85);
+  box-shadow: 0 0 28px rgba(0,230,118,.6), inset 0 0 20px rgba(0,255,120,.15);
+}
+.ch.correct .ch-lbl { color: white !important; text-shadow: 0 1px 6px rgba(0,0,0,.5); }
+.ch.correct::after {
+  content:'✓'; position:absolute; top:6px; right:9px;
+  font-size:22px; color:white; font-weight:900;
+  text-shadow: 0 2px 6px rgba(0,0,0,.4);
+}
+.ch.wrong {
+  border-color: #FF5252; border-width: 4px;
+  background: rgba(200,30,30,.85);
+  box-shadow: 0 0 28px rgba(255,82,82,.6), inset 0 0 20px rgba(255,50,50,.15);
+}
+.ch.wrong .ch-lbl { color: white !important; text-shadow: 0 1px 6px rgba(0,0,0,.5); }
+.ch.wrong::after {
+  content:'✗'; position:absolute; top:6px; right:9px;
+  font-size:22px; color:white; font-weight:900;
+  text-shadow: 0 2px 6px rgba(0,0,0,.4);
+}
+
+.feedback {
+  border-radius: 16px; padding: 12px 16px; font-size: 14px; font-weight: 800;
+  margin-bottom: 10px; display: none; align-items: center; gap: 8px;
+}
+.feedback.show { display: flex; animation: slideIn .3s ease; }
+@keyframes slideIn { from{opacity:0;transform:translateX(-10px)} to{opacity:1;transform:translateX(0)} }
+.feedback.ok  { background: rgba(0,160,80,.8); border: 2px solid #00E676; color: white; text-shadow: 0 1px 4px rgba(0,0,0,.4); }
+.feedback.err { background: rgba(180,30,30,.8); border: 2px solid #FF5252; color: white; text-shadow: 0 1px 4px rgba(0,0,0,.4); }
+
+.btn-next {
+  background: linear-gradient(135deg, #FF6B35, #FF1744);
+  border: 3px solid rgba(255,255,255,.3); color: white;
+  font-family: 'Fredoka One', cursive; font-size: 18px; padding: 12px 28px;
+  border-radius: 99px; cursor: pointer; box-shadow: 0 6px 18px rgba(255,50,0,.3);
+  transition: all .2s; display: none;
+}
+.btn-next.show { display: inline-flex; align-items: center; gap: 6px; }
+.btn-next:hover { transform: scale(1.05); }
+
+.result { text-align: center; padding: 24px 16px; width: 100%; max-width: 600px; }
+.r-icon { font-size: 80px; margin-bottom: 10px; animation: trophyBounce 1s both; }
+@keyframes trophyBounce {
+  0%{transform:scale(0) rotate(-20deg);opacity:0} 60%{transform:scale(1.2) rotate(5deg)} 80%{transform:scale(.95)} 100%{transform:scale(1);opacity:1}
+}
+.r-stars { font-size: 40px; letter-spacing: 4px; margin-bottom: 12px; }
+.r-title {
+  font-family: 'Fredoka One', cursive; font-size: clamp(28px,6vw,50px);
+  color: var(--sand); text-shadow: 0 4px 16px rgba(0,0,0,.3); margin-bottom: 10px;
+}
+.r-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 20px; }
+.r-box {
+  background: rgba(255,255,255,.2); border: 2px solid rgba(255,255,255,.35);
+  border-radius: 18px; padding: 14px 8px; text-align: center;
+}
+.r-box .ri { font-size: 28px; margin-bottom: 4px; }
+.r-box .rv { font-family: 'Fredoka One', cursive; font-size: 28px; line-height: 1; color: white; }
+.r-box .rl { font-size: 11px; color: rgba(255,255,255,.8); text-transform: uppercase; letter-spacing:.06em; }
+.r-desc { font-size: 15px; color: rgba(255,255,255,.9); margin-bottom: 24px; line-height: 1.7; }
+.r-desc span { color: var(--sand); font-weight: 900; font-size: 1.2em; }
+
+.btn-again {
+  background: linear-gradient(135deg, var(--green), #00c853);
+  border: 3px solid rgba(255,255,255,.3); color: #003322;
+  font-family: 'Fredoka One', cursive; font-size: 20px; padding: 14px 36px;
+  border-radius: 99px; cursor: pointer; box-shadow: 0 8px 24px rgba(0,200,100,.35);
+  transition: all .2s; margin: 4px;
+}
+.btn-again:hover { transform: scale(1.07); }
+.btn-home2 {
+  background: rgba(255,255,255,.2); border: 2px solid rgba(255,255,255,.4);
+  color: white; font-family: 'Fredoka One', cursive; font-size: 18px;
+  padding: 12px 28px; border-radius: 99px; cursor: pointer; transition: all .2s; margin: 4px;
+}
+.btn-home2:hover { background: rgba(255,255,255,.3); }
+
+.cf { position:fixed; pointer-events:none; z-index:999; border-radius:3px; animation:cfFall linear forwards; }
+@keyframes cfFall {
+  0%{opacity:1;transform:translateY(0) rotate(0deg)} 100%{opacity:0;transform:translateY(110vh) rotate(720deg)}
+}
+
+@media(max-width:480px){
+  .choices { gap: 8px; }
+  .ch { padding: 12px 6px; }
+  .wheel-wrap { width: min(310px,86vw); height: min(310px,86vw); }
+}
+</style>
+</head>
+<body>
+
+<div class="sea-bg"></div>
+<div class="rays" id="rays"></div>
+
+<div class="wave-bot">
+  <svg class="wsvg" style="animation-duration:9s" viewBox="0 0 1440 80" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,40 C180,80 360,0 540,40 C720,80 900,0 1080,40 C1260,80 1350,20 1440,40 L1440,80 L0,80 Z" fill="rgba(255,255,255,0.12)"/>
+  </svg>
+  <svg class="wsvg" style="animation-duration:12s;animation-direction:reverse;margin-top:-40px" viewBox="0 0 1440 60" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,30 C240,60 480,0 720,30 C960,60 1200,0 1440,30 L1440,60 L0,60 Z" fill="rgba(255,255,255,0.07)"/>
+  </svg>
+</div>
+
+<div class="container">
+
+  <div class="header">
+    <div class="header-fish">🐠 🐡 🐙 🦈 🐟 🦑</div>
+    <div class="logo">🌊 Game Teks Prosedur 🌊</div>
+    <div class="school-name">🏫 SD Islam Tunas Cendekia</div>
+    <div class="logo-sub">
+      <span class="chip">Kelas 2</span>
+      Bahasa Indonesia
+      <span class="chip">Kurikulum Merdeka</span>
+    </div>
+  </div>
+
+  <!-- SPIN SCREEN -->
+  <div class="screen active" id="s-spin">
+
+    <div class="scorebar">
+      <div class="sb"><div class="lbl">⭐ Skor</div><div class="val" id="sb-score" style="color:var(--sand)">0</div></div>
+      <div class="sb"><div class="lbl">✅ Benar</div><div class="val" id="sb-benar" style="color:var(--green)">0</div></div>
+      <div class="sb"><div class="lbl">❌ Salah</div><div class="val" id="sb-salah" style="color:var(--coral)">0</div></div>
+      <div class="sb"><div class="lbl">🎯 Soal</div><div class="val" id="sb-soal" style="color:var(--foam)">0</div></div>
+    </div>
+
+    <div class="prog-wrap">
+      <div class="prog-bar"><div class="prog-fill" id="main-prog" style="width:0%"></div></div>
+      <div class="prog-info">
+        <span class="prog-txt" id="main-prog-txt">🌊 Putar roda untuk mulai!</span>
+        <span class="prog-txt" id="main-prog-pct" style="color:var(--sand)">0 / 10</span>
+      </div>
+    </div>
+
+    <div class="wheel-wrap">
+      <div class="wheel-ptr"></div>
+      <canvas class="wheel-canvas" id="wheel" width="390" height="390"></canvas>
+      <div class="wheel-arrow">🎯</div>
+    </div>
+
+    <div class="name-display" id="name-disp">
+      <div class="nd-ready">🌊 Putar roda untuk pilih murid!</div>
+    </div>
+
+    <button class="btn-spin" id="btn-spin" onclick="spinWheel()">🌀 Putar Roda!</button>
+    <button class="btn-soal" id="btn-soal" onclick="showQuestion()">📖 Lihat Soal! →</button>
+
+  </div>
+
+  <!-- QUESTION SCREEN -->
+  <div class="screen" id="s-quiz">
+    <div class="q-wrap">
+      <div class="q-card">
+        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-bottom:8px">
+          <div class="q-badge" id="q-badge">🐠 Soal 1</div>
+          <div class="name-pill" id="q-name-pill">🧑 Nama</div>
+        </div>
+        <div class="q-img">
+          <span class="q-em" id="q-em">🎯</span>
+          <div class="q-cap" id="q-cap">Perhatikan gambar!</div>
+        </div>
+        <div class="q-txt" id="q-txt"></div>
+        <div class="choices" id="q-choices"></div>
+      </div>
+      <div class="feedback" id="q-fb"></div>
+      <button class="btn-next" id="q-next" onclick="afterAnswer()">🌀 Putar Lagi! →</button>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="screen" id="s-result">
+    <div class="result">
+      <div class="r-icon" id="r-icon">🏆</div>
+      <div class="r-stars" id="r-stars">⭐⭐⭐</div>
+      <div class="r-title" id="r-title">Luar Biasa!</div>
+      <div class="r-grid">
+        <div class="r-box"><div class="ri">⭐</div><div class="rv" id="r-score" style="color:var(--sand)">0</div><div class="rl">Skor</div></div>
+        <div class="r-box"><div class="ri">✅</div><div class="rv" id="r-benar" style="color:var(--green)">0</div><div class="rl">Benar</div></div>
+        <div class="r-box"><div class="ri">❌</div><div class="rv" id="r-salah" style="color:var(--coral)">0</div><div class="rl">Salah</div></div>
+      </div>
+      <div class="r-desc" id="r-desc">Semua murid sudah dapat giliran!<br>Total skor: <span id="r-score2">0</span> poin 🎉</div>
+      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+        <button class="btn-again" onclick="restartGame()">🔄 Main Lagi!</button>
+        <button class="btn-home2" onclick="restartGame()">🌊 Ulangi</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// AUDIO ENGINE (Web Audio API)
+// ══════════════════════════════════════════
+let audioCtx = null;
+
+function getAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function playCorrect() {
+  try {
+    const ac = getAudio();
+    // Happy ascending arpeggio: C5 E5 G5 C6
+    const notes = [523.25, 659.25, 783.99, 1046.50];
+    notes.forEach((freq, i) => {
+      const osc = ac.createOscillator();
+      const gain = ac.createGain();
+      osc.connect(gain); gain.connect(ac.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, ac.currentTime + i * 0.12);
+      gain.gain.setValueAtTime(0, ac.currentTime + i * 0.12);
+      gain.gain.linearRampToValueAtTime(0.28, ac.currentTime + i * 0.12 + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + i * 0.12 + 0.25);
+      osc.start(ac.currentTime + i * 0.12);
+      osc.stop(ac.currentTime + i * 0.12 + 0.28);
+    });
+    // Sparkle layer
+    setTimeout(() => {
+      const osc2 = ac.createOscillator();
+      const g2 = ac.createGain();
+      osc2.connect(g2); g2.connect(ac.destination);
+      osc2.type = 'triangle';
+      osc2.frequency.setValueAtTime(1200, ac.currentTime);
+      osc2.frequency.exponentialRampToValueAtTime(1800, ac.currentTime + 0.3);
+      g2.gain.setValueAtTime(0.15, ac.currentTime);
+      g2.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.35);
+      osc2.start(ac.currentTime);
+      osc2.stop(ac.currentTime + 0.4);
+    }, 350);
+  } catch(e){}
+}
+
+function playWrong() {
+  try {
+    const ac = getAudio();
+    // Sad descending: G4 E4 C4
+    const notes = [392, 329.63, 261.63];
+    notes.forEach((freq, i) => {
+      const osc = ac.createOscillator();
+      const gain = ac.createGain();
+      osc.connect(gain); gain.connect(ac.destination);
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(freq, ac.currentTime + i * 0.18);
+      gain.gain.setValueAtTime(0, ac.currentTime + i * 0.18);
+      gain.gain.linearRampToValueAtTime(0.2, ac.currentTime + i * 0.18 + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + i * 0.18 + 0.28);
+      osc.start(ac.currentTime + i * 0.18);
+      osc.stop(ac.currentTime + i * 0.18 + 0.32);
+    });
+    // Low thud
+    const osc3 = ac.createOscillator();
+    const g3 = ac.createGain();
+    osc3.connect(g3); g3.connect(ac.destination);
+    osc3.type = 'sine';
+    osc3.frequency.setValueAtTime(120, ac.currentTime + 0.55);
+    osc3.frequency.exponentialRampToValueAtTime(60, ac.currentTime + 0.85);
+    g3.gain.setValueAtTime(0.25, ac.currentTime + 0.55);
+    g3.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.9);
+    osc3.start(ac.currentTime + 0.55);
+    osc3.stop(ac.currentTime + 0.95);
+  } catch(e){}
+}
+
+function playSpinTick() {
+  try {
+    const ac = getAudio();
+    const osc = ac.createOscillator();
+    const gain = ac.createGain();
+    osc.connect(gain); gain.connect(ac.destination);
+    osc.type = 'sine';
+    osc.frequency.value = 800;
+    gain.gain.setValueAtTime(0.08, ac.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.05);
+    osc.start(ac.currentTime);
+    osc.stop(ac.currentTime + 0.06);
+  } catch(e){}
+}
+
+function playSpinEnd() {
+  try {
+    const ac = getAudio();
+    // Fanfare: quick ascending
+    [440, 550, 660, 880].forEach((freq, i) => {
+      const osc = ac.createOscillator();
+      const gain = ac.createGain();
+      osc.connect(gain); gain.connect(ac.destination);
+      osc.type = 'triangle';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.2, ac.currentTime + i * 0.07);
+      gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + i * 0.07 + 0.25);
+      osc.start(ac.currentTime + i * 0.07);
+      osc.stop(ac.currentTime + i * 0.07 + 0.3);
+    });
+  } catch(e){}
+}
+
+// ══════════════════════════════════════════
+// STUDENTS
+// ══════════════════════════════════════════
+const PRIORITY = [
+  'Anindhita','Rayden','Giandra Damar','Shaqeena',
+  'Hiromi','Hanan','Shofa','Adel','Arfan','Adha'
+];
+
+const ALL_STUDENTS = [
+  'Abiyandra','Adel','Alfi','Hanan',
+  'Shaqeena','Anasya','Anindhita','Arfan',
+  'Athaya','Azam','Bumi','Elvano',
+  'Fakhira','Giandra Damar','Hiromi','Khadeejah',
+  'Adha','Rasya','Mazaya','Nadilla',
+  'Rayden','Shofa','Zayn'
+];
+
+const WCOLORS = [
+  '#FF6B35','#FF1744','#E040FB','#7C4DFF','#2979FF',
+  '#00BCD4','#00E5FF','#1DE9B6','#76FF03','#FFD600',
+  '#FF6D00','#F50057','#D500F9','#651FFF','#2962FF',
+  '#0091EA','#00B8D4','#00BFA5','#64DD17','#FFAB00',
+  '#FF3D00','#AA00FF','#304FFE',
+];
+
+// ══════════════════════════════════════════
+// QUESTIONS — IKON DIPERBAIKI
+// ══════════════════════════════════════════
+const ALLQ = [
+  {
+    em:'🖐️💧', cap:'Cara mencuci tangan yang benar',
+    q:'Langkah PERTAMA mencuci tangan adalah...',
+    ch:[
+      {e:'🧻',l:'Keringkan dengan tisu'},
+      {e:'🧼',l:'Gunakan sabun'},
+      {e:'💧',l:'Basahi tangan dengan air'},
+      {e:'🪣',l:'Keringkan dengan handuk'}
+    ], ans:2
+  },
+  {
+    em:'🪥', cap:'Cara menggosok gigi',
+    q:'Langkah PERTAMA menggosok gigi adalah...',
+    ch:[
+      {e:'💧',l:'Berkumur'},
+      {e:'🪥',l:'Oleskan pasta gigi pada sikat'},
+      {e:'🦷',l:'Menyikat gigi'},
+      {e:'🫧',l:'Membilas mulut'}
+    ], ans:1
+  },
+  {
+    em:'🧼🖐️', cap:'Cara mencuci tangan',
+    q:'Setelah menggunakan sabun, langkah berikutnya adalah...',
+    ch:[
+      {e:'🧻',l:'Mengeringkan tangan'},
+      {e:'💧',l:'Membilas tangan dengan air'},
+      {e:'🚿',l:'Menutup keran'},
+      {e:'🪣',l:'Mengambil handuk'}
+    ], ans:1
+  },
+  {
+    em:'🍵', cap:'Cara membuat teh manis',
+    q:'Di bawah ini yang merupakan bahan untuk membuat teh manis adalah...',
+    ch:[
+      {e:'🧂',l:'Garam'},
+      {e:'🍬',l:'Gula'},
+      {e:'🫙',l:'Minyak'},
+      {e:'🥫',l:'Kecap'}
+    ], ans:1
+  },
+  {
+    em:'🦷', cap:'Cara menggosok gigi',
+    q:'Alat yang digunakan untuk menggosok gigi adalah...',
+    ch:[
+      {e:'🥄',l:'Sendok'},
+      {e:'🪥',l:'Sikat gigi'},
+      {e:'🍴',l:'Garpu'},
+      {e:'🧹',l:'Sapu'}
+    ], ans:1
+  },
+  {
+    em:'🖐️🧼', cap:'Cara mencuci tangan',
+    q:'Bahan yang digunakan saat mencuci tangan adalah...',
+    ch:[
+      {e:'🧼',l:'Sabun'},
+      {e:'🍬',l:'Gula'},
+      {e:'🌾',l:'Tepung'},
+      {e:'🧂',l:'Garam'}
+    ], ans:0
+  },
+  {
+    em:'🍜', cap:'Cara membuat mie instan',
+    q:'Alat yang digunakan untuk merebus mie adalah...',
+    ch:[
+      {e:'🫖',l:'Teko'},
+      {e:'🍲',l:'Panci'},
+      {e:'🍽️',l:'Piring'},
+      {e:'🥤',l:'Gelas'}
+    ], ans:1
+  },
+  {
+    em:'🍹', cap:'Cara membuat jus buah',
+    q:'Bahan utama untuk membuat jus adalah...',
+    ch:[
+      {e:'🥬',l:'Sayur'},
+      {e:'🍓',l:'Buah'},
+      {e:'🥩',l:'Daging'},
+      {e:'🍚',l:'Nasi'}
+    ], ans:1
+  },
+  {
+    // PERBAIKAN: Blender → 🧃 (gambar blender tidak ada di emoji, pakai 🫙 diganti deskripsi yang sesuai)
+    em:'🥤', cap:'Cara membuat jus buah',
+    q:'Alat yang digunakan untuk menghaluskan buah menjadi jus adalah...',
+    ch:[
+      {e:'⚡',l:'Blender'},
+      {e:'🔥',l:'Kompor'},
+      {e:'🧹',l:'Sapu'},
+      {e:'✏️',l:'Pensil'}
+    ], ans:0
+  },
+  {
+    em:'🧁', cap:'Cara membuat Kue Nastar',
+    q:'Buah apa yang digunakan untuk membuat kue nastar?',
+    ch:[
+      {e:'🍌',l:'Pisang'},
+      {e:'🍍',l:'Nanas'},
+      {e:'🥕',l:'Wortel'},
+      {e:'🍊',l:'Jeruk'}
+    ], ans:1
+  },
+];
+
+// ══════════════════════════════════════════
+// WHEEL DRAW
+// ══════════════════════════════════════════
+const canvas = document.getElementById('wheel');
+const ctx    = canvas.getContext('2d');
+let spinAngle = 0;
+
+function drawWheel(rot=0){
+  const W=canvas.width, H=canvas.height, cx=W/2, cy=H/2, r=W/2-10;
+  const n=ALL_STUDENTS.length, slice=(2*Math.PI)/n;
+  ctx.clearRect(0,0,W,H);
+
+  const ring=ctx.createRadialGradient(cx,cy,r,cx,cy,r+8);
+  ring.addColorStop(0,'rgba(255,255,255,.3)'); ring.addColorStop(1,'rgba(255,255,255,.0)');
+  ctx.beginPath(); ctx.arc(cx,cy,r+8,0,2*Math.PI);
+  ctx.fillStyle=ring; ctx.fill();
+
+  ALL_STUDENTS.forEach((name,i)=>{
+    const start=rot+i*slice-Math.PI/2, end=start+slice, mid=start+slice/2;
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,start,end); ctx.closePath();
+    ctx.fillStyle=WCOLORS[i%WCOLORS.length]; ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,.25)'; ctx.lineWidth=1.5; ctx.stroke();
+
+    ctx.save(); ctx.translate(cx,cy); ctx.rotate(mid);
+    ctx.textAlign='right'; ctx.fillStyle='white';
+    ctx.font=`bold ${n>18?9:11}px Nunito,sans-serif`;
+    ctx.shadowColor='rgba(0,0,0,.5)'; ctx.shadowBlur=3;
+    ctx.fillText(name, r-10, 4);
+    ctx.restore();
+  });
+
+  const cg=ctx.createRadialGradient(cx,cy,0,cx,cy,34);
+  cg.addColorStop(0,'#ffffff'); cg.addColorStop(1,'#aaeeff');
+  ctx.beginPath(); ctx.arc(cx,cy,34,0,2*Math.PI);
+  ctx.fillStyle=cg; ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,.6)'; ctx.lineWidth=2; ctx.stroke();
+
+  ctx.font='20px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.shadowBlur=0; ctx.fillText('🌊',cx,cy);
+}
+drawWheel();
+
+// ══════════════════════════════════════════
+// GAME STATE
+// ══════════════════════════════════════════
+let score=0,benar=0,salah=0,soalCount=0;
+let spinning=false, winIdx=-1, winName='';
+let answered=false, currentQ=null;
+let usedQ=[];
+
+function buildQueue(){
+  const pShuffled = shuffle([...PRIORITY]);
+  const rest = ALL_STUDENTS.filter(n => !PRIORITY.includes(n));
+  const rShuffled = shuffle(rest);
+  return [...pShuffled, ...rShuffled];
+}
+let queue = buildQueue();
+let queueIdx = 0;
+
+const MAX_SOAL = ALL_STUDENTS.length;
+
+// ══════════════════════════════════════════
+// SPIN
+// ══════════════════════════════════════════
+let lastTickIdx = -1;
+
+function spinWheel(){
+  if(spinning || queueIdx >= queue.length) return;
+  // Unlock audio on first interaction
+  try { getAudio(); } catch(e){}
+
+  spinning=true;
+  document.getElementById('btn-spin').disabled=true;
+  document.getElementById('btn-soal').classList.remove('show');
+
+  const targetName = queue[queueIdx];
+  const targetIdx  = ALL_STUDENTS.indexOf(targetName);
+
+  const n=ALL_STUDENTS.length, slice=(2*Math.PI)/n;
+  const extraSpins=(6+Math.floor(Math.random()*4))*2*Math.PI;
+  const targetCenter=-(targetIdx*slice+slice/2);
+  const finalAngle = spinAngle + extraSpins + (-(spinAngle%(2*Math.PI))) + targetCenter + 2*Math.PI*2;
+
+  const dur=3800+Math.random()*1200;
+  const t0=performance.now(), a0=spinAngle;
+  lastTickIdx = -1;
+
+  function ease(t){ return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2; }
+
+  function frame(now){
+    const t=Math.min((now-t0)/dur,1);
+    spinAngle=a0+(finalAngle-a0)*ease(t);
+    drawWheel(spinAngle);
+
+    // Tick sound based on segment crossing
+    const currentSegIdx = Math.floor(((spinAngle % (2*Math.PI)) / (2*Math.PI)) * n);
+    if(currentSegIdx !== lastTickIdx) {
+      lastTickIdx = currentSegIdx;
+      if(t < 0.92) playSpinTick();
+    }
+
+    if(t<1){ requestAnimationFrame(frame); return; }
+    spinning=false; winIdx=targetIdx; winName=targetName;
+    showName(winName);
+    playSpinEnd();
+    document.getElementById('btn-spin').disabled=false;
+    document.getElementById('btn-soal').classList.add('show');
+  }
+  requestAnimationFrame(frame);
+}
+
+function showName(name){
+  document.getElementById('name-disp').innerHTML=
+    `<div><div class="nd-name">🐠 ${name}</div><div class="nd-sub">✨ Dapat giliran menjawab soal! ✨</div></div>`;
+}
+
+// ══════════════════════════════════════════
+// SHOW QUESTION
+// ══════════════════════════════════════════
+function showQuestion(){
+  if(winIdx<0) return;
+  if(usedQ.length >= ALLQ.length){ usedQ=[]; }
+  const avail = ALLQ.map((_,i)=>i).filter(i=>!usedQ.includes(i));
+  const qi = avail[Math.floor(Math.random()*avail.length)];
+  usedQ.push(qi);
+  currentQ={...ALLQ[qi]};
+  answered=false;
+
+  document.getElementById('q-badge').textContent=`🐠 Soal ${soalCount+1}`;
+  document.getElementById('q-name-pill').textContent=`🧑 ${winName}`;
+  setEm('q-em',currentQ.em);
+  document.getElementById('q-cap').textContent=currentQ.cap;
+  document.getElementById('q-txt').textContent=currentQ.q;
+
+  const el=document.getElementById('q-choices'); el.innerHTML='';
+  const L=['A','B','C','D'];
+  currentQ.ch.forEach((c,i)=>{
+    const b=document.createElement('button'); b.className='ch';
+    b.innerHTML=`<span class="ch-lt">${L[i]}</span><span class="ch-em">${c.e}</span><span class="ch-lbl">${c.l}</span>`;
+    b.onclick=()=>pickAnswer(i,b);
+    el.appendChild(b);
+  });
+  setFb('q-fb','','');
+  document.getElementById('q-next').classList.remove('show');
+  show('s-quiz');
+}
+
+function pickAnswer(i,btn){
+  if(answered) return; answered=true;
+  soalCount++; queueIdx++;
+  document.querySelectorAll('#q-choices .ch').forEach(b=>b.disabled=true);
+  if(i===currentQ.ans){
+    btn.classList.add('correct'); score+=10; benar++;
+    setFb('q-fb','ok','🎉 Benar! Kamu hebat!');
+    playCorrect();
+    confetti();
+  } else {
+    btn.classList.add('wrong'); salah++;
+    document.querySelectorAll('#q-choices .ch')[currentQ.ans].classList.add('correct');
+    setFb('q-fb','err',`❌ Kurang tepat. Jawaban: ${currentQ.ch[currentQ.ans].l}`);
+    playWrong();
+  }
+  updateSB();
+  const nb=document.getElementById('q-next');
+  if(queueIdx>=MAX_SOAL){
+    nb.textContent='🏁 Lihat Hasil!'; nb.onclick=showResult;
+  } else {
+    nb.textContent='🌀 Putar Lagi! →'; nb.onclick=afterAnswer;
+  }
+  nb.classList.add('show');
+}
+
+function afterAnswer(){
+  show('s-spin'); winIdx=-1; winName='';
+  document.getElementById('btn-soal').classList.remove('show');
+  document.getElementById('name-disp').innerHTML='<div class="nd-ready">🌊 Putar roda lagi!</div>';
+}
+
+// ══════════════════════════════════════════
+// RESULT
+// ══════════════════════════════════════════
+function showResult(){
+  show('s-result');
+  const pct=soalCount>0?benar/soalCount:0;
+  let icon,title,stars;
+  if(pct===1)      {icon='🏆';title='Sempurna!';   stars='⭐⭐⭐';}
+  else if(pct>=.7) {icon='🎉';title='Luar Biasa!'; stars='⭐⭐⭐';}
+  else if(pct>=.5) {icon='🐬';title='Bagus!';      stars='⭐⭐';}
+  else             {icon='🐙';title='Semangat!';   stars='⭐';}
+  document.getElementById('r-icon').textContent=icon;
+  document.getElementById('r-title').textContent=title;
+  document.getElementById('r-stars').textContent=stars;
+  document.getElementById('r-score').textContent=score;
+  document.getElementById('r-benar').textContent=benar;
+  document.getElementById('r-salah').textContent=salah;
+  document.getElementById('r-score2').textContent=score;
+  confetti(60);
+}
+
+function restartGame(){
+  score=0;benar=0;salah=0;soalCount=0;
+  queue=buildQueue(); queueIdx=0; usedQ=[];
+  winIdx=-1; winName=''; spinning=false;
+  spinAngle=0; drawWheel();
+  updateSB();
+  document.getElementById('btn-soal').classList.remove('show');
+  document.getElementById('name-disp').innerHTML='<div class="nd-ready">🌊 Putar roda untuk mulai!</div>';
+  show('s-spin');
+}
+
+function updateSB(){
+  document.getElementById('sb-score').textContent=score;
+  document.getElementById('sb-benar').textContent=benar;
+  document.getElementById('sb-salah').textContent=salah;
+  document.getElementById('sb-soal').textContent=soalCount;
+  const pct=Math.round((queueIdx/MAX_SOAL)*100);
+  document.getElementById('main-prog').style.width=pct+'%';
+  document.getElementById('main-prog-txt').textContent=
+    soalCount===0?'🌊 Putar roda untuk mulai!':
+    queueIdx<=10?`🎯 Prioritas: ${queueIdx}/10 sudah menjawab`:
+    `🌊 ${queueIdx} dari ${MAX_SOAL} murid sudah menjawab`;
+  document.getElementById('main-prog-pct').textContent=`${queueIdx} / ${MAX_SOAL}`;
+}
+
+// ══════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function setEm(id,em){
+  const el=document.getElementById(id);
+  el.textContent=em; el.style.animation='none';
+  void el.offsetWidth; el.style.animation='';
+}
+function setFb(id,type,msg){
+  const el=document.getElementById(id);
+  el.className='feedback'+(type?` show ${type}`:'');
+  el.textContent=msg;
+}
+function shuffle(a){
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+function confetti(n=24){
+  const cols=['#FFE066','#FF6B6B','#44DD88','#44CCFF','#CC88FF','#FF6B35','#aaeeff','#ffffff'];
+  for(let i=0;i<n;i++){
+    setTimeout(()=>{
+      const el=document.createElement('div'); el.className='cf';
+      const sz=7+Math.random()*10;
+      el.style.cssText=`left:${Math.random()*100}vw;top:-10px;width:${sz}px;height:${sz}px;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'3px'};animation-duration:${1.5+Math.random()*2}s;animation-delay:${Math.random()*.3}s`;
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(),3500);
+    },i*40);
+  }
+}
+
+// ══════════════════════════════════════════
+// AMBIENT
+// ══════════════════════════════════════════
+(function(){
+  for(let i=0;i<30;i++){
+    const b=document.createElement('div'); b.className='bubble';
+    const sz=8+Math.random()*36;
+    b.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;bottom:0;animation-duration:${7+Math.random()*10}s;animation-delay:${Math.random()*10}s`;
+    document.body.appendChild(b);
+  }
+
+  const fishes=[
+    {em:'🐠',top:8,dur:20,delay:0},{em:'🐟',top:18,dur:15,delay:3},
+    {em:'🐡',top:35,dur:25,delay:5},{em:'🦈',top:50,dur:30,delay:1},
+    {em:'🐙',top:65,dur:18,delay:7},{em:'🦑',top:78,dur:22,delay:4},
+    {em:'🐠',top:88,dur:17,delay:9},{em:'🐟',top:25,dur:28,delay:6},
+  ];
+  fishes.forEach(f=>{
+    const el=document.createElement('div'); el.className='fish';
+    el.style.cssText=`top:${f.top}%;font-size:${24+Math.random()*16}px;animation-duration:${f.dur}s;animation-delay:${f.delay}s`;
+    el.textContent=f.em; document.body.appendChild(el);
+  });
+
+  const decos=[
+    {em:'🪸',left:2,dur:3,delay:0},{em:'🌿',left:8,dur:2.5,delay:.5},
+    {em:'🪸',left:88,dur:3.5,delay:1},{em:'🌿',left:95,dur:2,delay:.3},
+    {em:'🪸',left:15,dur:4,delay:.8},{em:'🌿',left:78,dur:3,delay:1.2},
+  ];
+  decos.forEach(d=>{
+    const el=document.createElement('div'); el.className='deco';
+    el.style.cssText=`left:${d.left}%;animation-duration:${d.dur}s;animation-delay:${d.delay}s`;
+    el.textContent=d.em; document.body.appendChild(el);
+  });
+
+  const rc=document.getElementById('rays');
+  for(let i=0;i<8;i++){
+    const r=document.createElement('div'); r.className='ray';
+    const rot=(-30+i*10);
+    r.style.cssText=`left:${10+i*12}%;height:${300+Math.random()*200}px;--r:${rot}deg;animation-duration:${3+Math.random()*3}s;animation-delay:${Math.random()*2}s`;
+    rc.appendChild(r);
+  }
+
+  const isMobile=window.innerWidth<500;
+  if(isMobile){
+    const sz=Math.min(window.innerWidth*0.86,310);
+    canvas.width=sz; canvas.height=sz;
+    canvas.style.width=sz+'px'; canvas.style.height=sz+'px';
+    drawWheel(spinAngle);
+  }
+})();
+
+updateSB();
+</script>
+</body>
+</html>
